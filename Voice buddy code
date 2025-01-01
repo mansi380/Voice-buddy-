@@ -1,0 +1,160 @@
+import datetime
+from distutils.cmd import Command
+import pyttsx3
+import speech_recognition as sr
+import os
+import random
+import wikipedia
+import webbrowser
+import pywhatkit
+import sys
+import pyjokes
+import time
+import psutil
+
+engine = pyttsx3.init("sapi5")
+voices = engine.getProperty("voices")
+engine.setProperty("voice", voices[0].id)
+rate = engine.setProperty("rate",200)
+
+def speak(audio):
+    engine.say(audio)
+    print(audio)
+    engine.runAndWait()
+
+
+def takecommand():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+         print("listening...")
+         r.pause_threshold = 1
+         audio = r.listen(source, timeout=1,phrase_time_limit=5)
+
+    try:
+        print("Recognizing...")
+        query = r.recognize_google(audio, language='en-in')
+
+    except Exception as e:
+        speak("say that again please")
+        return"none"
+    return query
+
+
+def wish():
+    hour = int(datetime.datetime.now().hour)
+
+    if hour>=0 and hour<=12:
+       speak("good morning")
+    elif hour>12 and hour<18:
+       speak("good afternoon")
+    else:
+       speak("good evening")
+speak("iam butcher sir, please tell me how can i help you")
+
+if __name__ == "__main__":
+    wish()
+    # while True:
+    if 1:
+     
+     query = takecommand().lower()
+      
+      
+     if "open notepad" in query:
+        npath = "C:\\Windows\\notepad.exe"
+        os.startfile(npath)
+
+     elif "open command prompt" in query:
+         os.system("start cmd")
+
+
+
+     elif "play music" in query:
+          music_dir = "C:\\music"
+          songs = os.listdir(music_dir)
+          rd = random.choice(songs)
+          for song in songs:
+            if song.endswith('.mp3'):
+               os.startfile(os.path.join(music_dir, songs[0]))
+
+     elif "wikipedia" in query:
+          speak("searching wikipedia....")
+          query = query.replace("wikipedia","")
+          results = wikipedia.summary(query, sentences=2)
+          speak("according to wikipedia")
+          speak (results)
+          print (results)
+
+     elif "open youtube" in query:
+       webbrowser.open("www.youtube.com")
+
+     elif "open stackoverflow" in query: 
+       webbrowser.open("www.stackoverflow.com")
+
+     elif "open google" in query: 
+        speak("sir, what should i search on google")
+        cm = takecommand().lower()
+        webbrowser.open(f"{cm}")
+
+     elif 'joke' in query:
+        speak(pyjokes.get_joke())
+
+     elif "no thanks" in query: 
+         speak("thanks for using me sir, have a good day.") 
+         sys.exit() 
+
+     elif 'date' in query:
+      date = datetime.datetime.now().strftime('%B %d, %Y')
+      speak('Current date is ' + date)
+
+     elif 'time' in query:
+        time = datetime.datetime.now().strftime('%I:%M %p')
+        speak('Current time is ' + time)
+
+     elif "write in notepad" in query:
+      text_to_write = query.replace("write in notepad", "")
+      with open("jarvis_note.txt", "w") as f:
+        f.write(text_to_write)
+        os.startfile("jarvis_note.txt")
+
+    def run_alexa():
+      query = takecommand()
+      print(query)
+    if 'play' in query:
+        song = query.replace('play', '')
+        speak('playing ' + song)
+        pywhatkit.playonyt(song) 
+    
+    elif "news" in query:
+       from NewsRead import latestnews
+       latestnews()
+
+
+def handle_query(query):
+    if "write in notepad" in query:
+        # Extract the text to be written to the file
+        text_to_write = query.replace("write in notepad", "").strip()
+        
+        
+        with open("jarvis_note.txt", "w") as f:
+            f.write(text_to_write)
+        
+        
+        os.startfile("jarvis_note.txt")
+
+       
+    elif "whatsapp" in query:
+         from Whatsapp import sendMessage
+         sendMessage()
+
+speak("thanks for using me sir , have a good day")
+    
+ elif "how much power left" in query or "how much power we have" in query "battery" in query:
+     battery = psutil.sensors_battery()
+    percentage = battery.percent
+    speak(f"sir your system have{percentage} percent battery")
+ if percentage>75:
+          speak("we have enough power to continue our work")
+elif percentage>40 and percentage<=75:
+     speak("we dont have enouigh power to work, please connect to charging")
+elif percentage<=15:
+    speak("we have very low power,please connect to charging the system will shutdown very soon")
